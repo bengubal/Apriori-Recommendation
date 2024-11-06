@@ -3,11 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import mlxtend as mlx
+import self
 from pandas import merge
 from scipy.sparse import csr_matrix
 from mlxtend.frequent_patterns import apriori, association_rules
 from app.apriori import AprioriRecommender
-from app.gui import start_gui
+from app.gui import MovieRecommendationApp
+
 
 
 
@@ -24,6 +26,18 @@ print("---------------------------------------------")
 ratings_df = pd.read_csv('data/rating_cleaned.csv', index_col=0)
 print(ratings_df.head(5))
 
+popular_movies = pd.read_csv('popular_movies.csv')
+movies_cleaned = pd.read_csv('data/movies_cleaned.csv')
+
+# Title değerlerine göre birleştirme
+merged_df = pd.merge(popular_movies, movies_cleaned[['title', 'genres']], on='title', how='left')
+
+# genre sütununu popüler filmlere ekleyin
+popular_movies['genre_from_cleaned'] = merged_df['genres']
+
+# Sonuçları kontrol edin
+print(popular_movies.head())
+#popular_movies.to_csv('data/popular_movies.csv')
 #user_movie_matrix = ratings_df.pivot_table(index='userId', columns='movieId', values='rating', fill_value=0)
 
 # Kullanıcı-film matrisini yazdırma
@@ -59,30 +73,30 @@ genres_df.sort_values(by=['genres'], ascending=True, inplace=True)
 #genres_df.to_csv('data/genres.csv')
 
 #ayirdigim tur ve rating veri setlerini birlestiriyorum
-merge_genre_df = merge(genres_df, ratings_df, on='movieId')
-merge_genre_df.sort_values(by=['genres', 'rating'], ascending=[True, False], inplace=True)
-
-merge_genre_df.to_csv('data/genre_rating.csv')
-print("-----------------------------")
+# merge_genre_df = merge(genres_df, ratings_df, on='movieId')
+# merge_genre_df.sort_values(by=['genres', 'rating'], ascending=[True, False], inplace=True)
+#
+# merge_genre_df.to_csv('data/genre_rating.csv')
+# print("-----------------------------")
 
 #toplu veri setini turlere gore ayiriyorum ve her tur icin ayri bir df olusturuyorum
-genre_dataframes = {
-    genre: merge_genre_df[merge_genre_df['genres'] == genre]
-    for genre in merge_genre_df['genres'].unique()
-}
-
-comedy_df=genre_dataframes['Comedy']
-action_df =genre_dataframes['Action']
-animation_df=genre_dataframes['Animation']
-romance_df=genre_dataframes['Romance']
-adventure_df=genre_dataframes['Adventure']
-drama_df=genre_dataframes['Drama']
-horror_df=genre_dataframes['Horror']
-fantasy_df=genre_dataframes['Fantasy']
-sci_fi_df=genre_dataframes['Sci-Fi']
-thriller_df=genre_dataframes['Thriller']
-war_df=genre_dataframes['War']
-children_df=genre_dataframes['Children']
+# genre_dataframes = {
+#     genre: merge_genre_df[merge_genre_df['genres'] == genre]
+#     for genre in merge_genre_df['genres'].unique()
+# }
+#
+# comedy_df=genre_dataframes['Comedy']
+# action_df =genre_dataframes['Action']
+# animation_df=genre_dataframes['Animation']
+# romance_df=genre_dataframes['Romance']
+# adventure_df=genre_dataframes['Adventure']
+# drama_df=genre_dataframes['Drama']
+# horror_df=genre_dataframes['Horror']
+# fantasy_df=genre_dataframes['Fantasy']
+# sci_fi_df=genre_dataframes['Sci-Fi']
+# thriller_df=genre_dataframes['Thriller']
+# war_df=genre_dataframes['War']
+# children_df=genre_dataframes['Children']
 
 ##ture ozel dfleri kaydediyorum ki daha sonra islem yapabileyim
 # comedy_df.to_csv('data/comedy.csv')
@@ -206,7 +220,7 @@ print("-----------------------------------")
 print("kullanıcı matrisi:___________________________")
 
 # veri setini yüklüyorum
-file_path = 'data/rating_cleaned.csv'
+file_path = 'data/ratings.csv'
 data = pd.read_csv(file_path)
 
 # userId ve movieId değerlerini alıyorum
@@ -233,22 +247,107 @@ print("Kullanıcı-Film matrisinin şekli:", user_movie_matrix.shape)
 print(user_movie_matrix.toarray()[:10, :10])
 print(user_movie_matrix)
 
-smaller_matrix = user_movie_matrix[:1000, :1000]
-# AprioriRecommender sınıfını oluşturun
-recommender = AprioriRecommender(user_movie_matrix)
+# smaller_matrix = user_movie_matrix[:1000, :1000]
+# # AprioriRecommender sınıfını oluşturun
+# recommender = AprioriRecommender(user_movie_matrix)
+# recommender.fit()
+# # Öneri almak için bir kullanıcı kimliği belirleyin
+# user_id = 17  # Örnek kullanıcı kimliği
+# suggestions = recommender.recommend(user_id)
+# # Sonuçları yazdır
+# print("Önerilen Filmler:", suggestions)
+#
+# films_df = pd.read_csv('data/movies_cleaned.csv')  # film_id, film_adı, tür
+#
+# # Önerilen film ID'lerini kullanarak film adlarını ve türlerini al
+# suggested_films = films_df[films_df['movieId'].isin(suggestions)]
+#
+# # Sonuçları yazdır
+# print("Önerilen Filmler:")
+# for index, row in suggested_films.iterrows():
+#     print(f"Film ID: {row['movieId']}, Film Adı: {row['title']}, Tür: {row['genres']}")
+
+
+
+# recommender = AprioriRecommender(user_movie_matrix,'all_popular.csv','data/movies_cleaned.csv')
+#
+# recommender.fit()  # Modeli eğit
+#
+# user_movies = ['Inception', 'The Matrix']  # Kullanıcının izlediği filmler
+# movie_title = 'The Matrix'  # Öneri almak istediğiniz film
+# genre = 'Action'  # Öneri almak istediğiniz tür
+#
+# # Film ismine göre öneri
+# title_recommendations = recommender.recommend_by_title(movie_title, user_movies)
+# print("İsme göre öneriler:", title_recommendations)
+#
+# # Türüne göre öneri
+# genre_recommendations = recommender.recommend_by_genre(genre, user_movies)
+# print("Türe göre öneriler:", genre_recommendations)
+#
+#
+# movies_cleaned = pd.read_csv('data/movies_cleaned.csv')  # Bu yolun doğru olduğundan emin olun
+#
+# # movieId ile başlık arasında bir eşleme oluşturun
+# movie_id_to_title = pd.Series(movies_cleaned['title'].values, index=movies_cleaned['movieId']).to_dict()
+#
+# # Önerici sınıfını başlat
+# recommender = AprioriRecommender(user_movie_matrix, 'all_popular.csv', 'data/movies_cleaned.csv')
+#
+# # Modeli eğitin
+# recommender.fit()
+#
+# # Öneri almak için kullanıcı ID'si
+# user_id = 56 # Geçerli bir kullanıcı ID'si
+# # Kullanıcının izlediği film ID'lerini alın
+# user_movies_ids = user_movie_matrix[user_id].nonzero()[1]  # İzlenen filmlerin indekslerini alıyoruz
+#
+# # movieId'leri başlıklara çevirin
+# user_movies = [movie_id_to_title[unique_movies[movie_id]] for movie_id in user_movies_ids]
+#
+# # Öneri almak istediğiniz film başlığı ve türü
+# movie_title = 'The Matrix'  # Örnek film başlığı
+# genre = 'Action'  # Örnek tür
+#
+# # Film ismine göre öneri
+# title_recommendations = recommender.recommend_by_title(movie_title, user_movies)
+# print("İsme göre öneriler:", title_recommendations)
+#
+# # Türüne göre öneri
+# genre_recommendations = recommender.recommend_by_genre(genre, user_movies)
+# print("Türe göre öneriler:", genre_recommendations)
+
+
+movies_cleaned_path = 'data/movies_cleaned.csv'  # Bu yolu güncellediğinizden emin olun
+popular_movies_path = 'all_popular.csv'  # Popüler filmler için dosya yolu
+
+# # Önerici sınıfını başlat
+# recommender = AprioriRecommender(user_movie_matrix, popular_movies_path, movies_cleaned_path)
+#
+# # Modeli eğitin
+# recommender.fit()
+#
+recommender = AprioriRecommender(user_movie_matrix, popular_movies_path, movies_cleaned_path)
 recommender.fit()
-# Öneri almak için bir kullanıcı kimliği belirleyin
-user_id = 3  # Örnek kullanıcı kimliği
-suggestions = recommender.recommend(user_id)
-# Sonuçları yazdır
-print("Önerilen Filmler:", suggestions)
+# # Kullanıcının izlediği film ID'lerini alın
+user_id = 59  # Geçerli bir kullanıcı ID'si
+user_movie_ids = user_movie_matrix[user_id].nonzero()[1].tolist()  # İzlenen filmlerin indekslerini alıyoruz
 
-films_df = pd.read_csv('data/movies_cleaned.csv')  # film_id, film_adı, tür
+# Kullanıcının izlediği film başlıklarını almak için ID'leri kullanın
+user_movies = [recommender.get_movie_title(movie_id) for movie_id in user_movie_ids]
 
-# Önerilen film ID'lerini kullanarak film adlarını ve türlerini al
-suggested_films = films_df[films_df['movieId'].isin(suggestions)]
+# Film önerisi almak
+recommendations = recommender.recommend(user_id)
+print("Kullanıcıya önerilen filmler:", [recommender.get_movie_title(movie_id) for movie_id in recommendations])
 
-# Sonuçları yazdır
-print("Önerilen Filmler:")
-for index, row in suggested_films.iterrows():
-    print(f"Film ID: {row['movieId']}, Film Adı: {row['title']}, Tür: {row['genres']}")
+recommendbymovie = recommender.recommend_for_movie(234)
+print("filme göre önerilen filmler:", recommendbymovie)
+
+# Türüne göre öneri almak
+genre = 'Horror'  # Örnek tür
+genre_recommendations = recommender.recommend_by_genre(genre, user_movies)
+print("Türe göre öneriler:", genre_recommendations)
+
+MovieRecommendationApp()
+
+

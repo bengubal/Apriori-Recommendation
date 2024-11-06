@@ -48,6 +48,26 @@ popular_genre.to_csv('data/thriller_cleaned.csv',index=False)
 popular_genre = war_average_ratings.sort_values(by='average_rating', ascending=False).head(50)
 popular_genre.to_csv('data/war_cleaned.csv',index=False)
 
+folder_path = "popular-csv"  # Klasör yolunu buraya yazın
+output_file = "popular_movies.csv"  # Çıkış dosyasının adı
+
+# Tüm CSV dosyalarını bir listede birleştir
+dataframes = []
+for file_name in os.listdir(folder_path):
+    if file_name.endswith(".csv"):
+        file_path = os.path.join(folder_path, file_name)
+        df = pd.read_csv(file_path)
+        dataframes.append(df)
+
+# Tüm DataFrame'leri tek bir DataFrame'de birleştir
+merged_df = pd.concat(dataframes, ignore_index=True)
+
+# Tek bir CSV dosyasına kaydet
+merged_df.to_csv(output_file, index=False)
+print(f"Bütün dosyalar '{output_file}' ismiyle birleştirildi.")
+
+
+
 
 # veri setini yüklüyorum
 file_path = 'data/rating_cleaned.csv'
