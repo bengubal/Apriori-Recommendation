@@ -45,7 +45,4 @@ The dataset is structured into multiple CSV files:
    - Select a user ID from the provided list.  
    - View movie recommendations based on historical data.  
 
-## Installation  
-1. Clone this repository:  
-   ```bash
-   git clone https://github.com/bengubal/yazilim-gel-1
+
